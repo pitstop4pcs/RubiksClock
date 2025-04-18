@@ -25,6 +25,7 @@ class Game:
         pygame.init()
         pygame.display.set_caption("Rubik's Clock")
         self.screen = pygame.display.set_mode((800, 800))
+        pygame.display.set_icon(pygame.image.load(resource_path("rubik.ico")).convert_alpha())
         self.running = True
         self.game_started = False
         self.solved = False
