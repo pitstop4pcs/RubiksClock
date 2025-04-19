@@ -194,7 +194,7 @@ class KeyboardGraphic:
             pygame.draw.rect(self.surface, "white", (0, 0, 60, 40), 0, 6)
             pygame.draw.rect(self.surface, "black", (0, 0, 60, 40), 2, 6)
             pygame.draw.rect(self.surface, "black", (4, 4, 52, 32), 1, 8)
-            img = pygame.image.load(resource_path("shift.png")).convert_alpha()
+            img = pygame.image.load(resource_path("./shift.png")).convert_alpha()
             img_rect = img.get_rect(topleft=(0, 4))
             self.surface.blit(img, img_rect)
         elif key == "esc":
@@ -223,9 +223,9 @@ class KeyboardGraphic:
 class FlipButton:
     def __init__(self, pos, front=True):
         if front:
-            self.surface = pygame.image.load(resource_path("flip.png")).convert_alpha()
+            self.surface = pygame.image.load(resource_path("./flip.png")).convert_alpha()
         else:
-            self.surface = pygame.transform.flip(pygame.image.load(resource_path("flip.png")).convert_alpha(), True, False)
+            self.surface = pygame.transform.flip(pygame.image.load(resource_path("./flip.png")).convert_alpha(), True, False)
         self.rect = self.surface.get_rect(center=pos)
 
     def draw(self, surf):
