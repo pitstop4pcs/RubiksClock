@@ -1,13 +1,7 @@
 import random
 import pygame
-import os
-import sys
-from sprites import ClockFace, Button, Dial, ResetButton, ScrambleButton
 
-
-def resource_path(relative_path):
-    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, relative_path)
+from sprites import resource_path, ClockFace, Button, Dial, ResetButton, ScrambleButton, KeyboardGraphic, FlipButton
 
 
 class Game:
@@ -43,6 +37,9 @@ class Game:
         self.reset_button = ResetButton((330, 715))
         self.scramble_button = ScrambleButton((470, 715))
 
+        self.front_flip_button = FlipButton((self.screen.get_rect().centerx, 80))
+        self.rear_flip_button = FlipButton((self.screen.get_rect().centerx, 80), False)
+
         self.timer = 0
         try:
             with open(resource_path("best.txt"), "r") as file:
@@ -53,8 +50,6 @@ class Game:
             with open(resource_path("best.txt"), "w") as file:
                 file.write(str(self.best))
 
-
-
     def run(self):
         while self.running:
             for event in pygame.event.get():
@@ -64,10 +59,9 @@ class Game:
                     if event.button == 1:
                         self.mouse_click(event.pos)
                     elif event.button == 3:
-                        if self.front:
-                            self.front = False
-                        else:
-                            self.front = True
+                        self.flip()
+                if event.type == pygame.KEYDOWN:
+                    self.key_press(pygame.key.get_pressed())
 
             if self.game_started:
                 if set(cf.time for cf in [*self.clock_faces, *self.r_clock_faces]) == {0}:
@@ -78,6 +72,114 @@ class Game:
             self.display_update()
         pygame.quit()
 
+    def flip(self):
+        if self.front:
+            self.front = False
+        else:
+            self.front = True
+
+    def key_press(self, keys):
+        if keys[pygame.K_SPACE]:
+            self.flip()
+        if keys[pygame.K_ESCAPE]:
+            self.reset()
+        if keys[pygame.K_RETURN]:
+            self.scramble()
+        if not self.solved:
+            if self.front:
+                if keys[pygame.K_q]:
+                    self.buttons[0].press()
+                    self.r_buttons[0].press()
+                if keys[pygame.K_w]:
+                    self.buttons[1].press()
+                    self.r_buttons[1].press()
+                if keys[pygame.K_a]:
+                    self.buttons[2].press()
+                    self.r_buttons[2].press()
+                if keys[pygame.K_s]:
+                    self.buttons[3].press()
+                    self.r_buttons[3].press()
+
+                if keys[pygame.K_i]:
+                    if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                        self.dials[0].minus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[0].plus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+                    else:
+                        self.dials[0].plus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[0].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+
+                if keys[pygame.K_o]:
+                    if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                        self.dials[1].minus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[1].plus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+                    else:
+                        self.dials[1].plus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[1].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+
+                if keys[pygame.K_k]:
+                    if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                        self.dials[2].minus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[2].plus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+                    else:
+                        self.dials[2].plus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[2].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+
+                if keys[pygame.K_l]:
+                    if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                        self.dials[3].minus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[3].plus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+                    else:
+                        self.dials[3].plus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[3].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+            else:
+                if keys[pygame.K_q]:
+                    self.buttons[1].press()
+                    self.r_buttons[1].press()
+                if keys[pygame.K_w]:
+                    self.buttons[0].press()
+                    self.r_buttons[0].press()
+                if keys[pygame.K_a]:
+                    self.buttons[3].press()
+                    self.r_buttons[3].press()
+                if keys[pygame.K_s]:
+                    self.buttons[2].press()
+                    self.r_buttons[2].press()
+
+                if keys[pygame.K_i]:
+                    if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                        self.dials[1].plus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[1].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+                    else:
+                        self.dials[1].minus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[1].plus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+
+                if keys[pygame.K_o]:
+                    if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                        self.dials[0].plus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[0].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+                    else:
+                        self.dials[0].minus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[0].plus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+
+
+                if keys[pygame.K_k]:
+                    if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                        self.dials[3].plus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[3].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+                    else:
+                        self.dials[3].minus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[3].plus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+
+
+                if keys[pygame.K_l]:
+                    if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                        self.dials[2].plus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[2].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+                    else:
+                        self.dials[2].minus([button.pressed for button in self.buttons], self.clock_faces)
+                        self.r_dials[2].plus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
+
+
     def completed(self):
         self.solved = True
         if self.timer < self.best or self.best == 0:
@@ -87,6 +189,8 @@ class Game:
 
     def mouse_click(self, pos):
         if self.front:
+            if self.front_flip_button.rect.collidepoint(pos):
+                self.flip()
             if self.reset_button.rect.collidepoint(pos):
                 self.reset()
             if self.scramble_button.rect.collidepoint(pos):
@@ -106,6 +210,8 @@ class Game:
                         dial.plus([button.pressed for button in self.buttons], self.clock_faces)
                         self.r_dials[i].minus([r_button.pressed for r_button in self.r_buttons], self.r_clock_faces)
         else:
+            if self.rear_flip_button.rect.collidepoint(pos):
+                self.flip()
             if not self.solved:
                 for i, r_button in enumerate(self.r_buttons):
                     if r_button.rect.collidepoint(pos):
@@ -156,6 +262,7 @@ class Game:
             self.screen.blit(front, front_rect)
             self.reset_button.draw(self.screen)
             self.scramble_button.draw(self.screen)
+            self.front_flip_button.draw(self.screen)
         else:
             [r_dial.draw(self.screen) for r_dial in self.r_dials]
             pygame.draw.circle(self.screen, "white", (400, 400), 375)
@@ -165,6 +272,7 @@ class Game:
             back = pygame.font.SysFont("courier", 30, bold=True).render("Back", True, "black")
             back_rect = back.get_rect(center=(self.screen.get_rect().centerx, 50))
             self.screen.blit(back, back_rect)
+            self.rear_flip_button.draw(self.screen)
 
         time = round(self.timer * 100)
         secs, huns = divmod(time, 100)
@@ -190,6 +298,29 @@ class Game:
         timer = pygame.font.SysFont("courier", 30, bold=True).render(f"{hrs}:{mins}:{secs}.{huns}", True, "black")
         timer_rect = timer.get_rect(topleft=(self.screen.get_rect().left, self.screen.get_rect().top))
         self.screen.blit(timer, timer_rect)
+
+        if not self.game_started:
+            KeyboardGraphic("q", (280, 280)).draw(self.screen)
+            KeyboardGraphic("w", (520, 280)).draw(self.screen)
+            KeyboardGraphic("a", (280, 480)).draw(self.screen)
+            KeyboardGraphic("s", (520, 480)).draw(self.screen)
+            KeyboardGraphic("i", (90, 55)).draw(self.screen)
+            KeyboardGraphic("o", (750, 145)).draw(self.screen)
+            KeyboardGraphic("k", (50, 650)).draw(self.screen)
+            KeyboardGraphic("l", (710, 735)).draw(self.screen)
+            KeyboardGraphic("shift", (32, 162)).draw(self.screen)
+            KeyboardGraphic("i", (84, 162)).draw(self.screen)
+            KeyboardGraphic("shift", (720, 55)).draw(self.screen)
+            KeyboardGraphic("o", (772, 55)).draw(self.screen)
+            KeyboardGraphic("shift", (50, 745)).draw(self.screen)
+            KeyboardGraphic("k", (102, 745)).draw(self.screen)
+            KeyboardGraphic("shift", (726, 640)).draw(self.screen)
+            KeyboardGraphic("l", (778, 640)).draw(self.screen)
+            KeyboardGraphic("space", (500, 100)).draw(self.screen)
+            if self.front:
+                KeyboardGraphic("return", (555, 755)).draw(self.screen)
+                KeyboardGraphic("esc", (270, 745)).draw(self.screen)
+
         pygame.display.update()
 
 

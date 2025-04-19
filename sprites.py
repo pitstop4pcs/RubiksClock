@@ -1,4 +1,12 @@
 import pygame
+import sys
+import os
+
+
+def resource_path(relative_path):
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 
 class Dial:
     def __init__(self, pos, idx, front=True):
@@ -145,9 +153,80 @@ class ScrambleButton:
         self.rect = self.surface.get_rect(center=pos)
         pygame.draw.rect(self.surface, "white", (0, 0, 120, 50), 0, 8)
         pygame.draw.rect(self.surface, "black", (0, 0, 120, 50), 1, 8)
-        text = pygame.font.SysFont("courier", 22, bold=True).render("Scramble", True, "black")
+        text = pygame.font.SysFont("courier", 22, bold=True).render("Start", True, "black")
         text_rect = text.get_rect(center=self.surface.get_rect().center)
         self.surface.blit(text, text_rect)
+
+    def draw(self, surf):
+        surf.blit(self.surface, self.rect)
+
+
+class KeyboardGraphic:
+    def __init__(self, key, pos):
+        if key == "return":
+            self.surface = pygame.Surface((80, 80), pygame.SRCALPHA, 32).convert_alpha()
+            self.rect = self.surface.get_rect(center=pos)
+            pygame.draw.rect(self.surface, "white", (0, 0, 80, 40), 0, 6, 6, 6, 6, 0)
+            pygame.draw.rect(self.surface, "white", (18, 40, 62, 40), 0, 6, 0, 0, 6, 6)
+            pygame.draw.rect(self.surface, "black", (0, 0, 80, 40), 2, 6, 6, 6, 6, 0)
+            pygame.draw.rect(self.surface, "black", (18, 40, 62, 40), 2, 6, 0, 0, 6, 6)
+            pygame.draw.rect(self.surface, "black", (4, 4, 72, 32), 2, 6, 6, 6, 6, 0)
+            pygame.draw.rect(self.surface, "black", (22, 44, 54, 32), 2, 6, 0, 0, 6, 6)
+            pygame.draw.rect(self.surface, "white", (20, 34, 58, 12))
+            pygame.draw.line(self.surface, "black", (22, 34), (22, 56), 2)
+            pygame.draw.line(self.surface, "black", (20, 34), (22, 34), 2)
+            pygame.draw.line(self.surface, "black", (74, 34), (74, 45), 2)
+            pygame.draw.line(self.surface, "black", (15, 23), (40, 23), 3)
+            pygame.draw.line(self.surface, "black", (40, 23), (40, 12), 3)
+            pygame.draw.polygon(self.surface, "black", [(15, 23), (20, 20), (20, 26)], 0)
+        elif key == "space":
+            self.surface = pygame.Surface((160, 40), pygame.SRCALPHA, 32).convert_alpha()
+            self.rect = self.surface.get_rect(center=pos)
+            pygame.draw.rect(self.surface, "white", (0, 0, 160, 40), 0, 6)
+            pygame.draw.rect(self.surface, "black", (0, 0, 160, 40), 2, 6)
+            pygame.draw.rect(self.surface, "black", (4, 4, 152, 32), 1, 8)
+            pygame.draw.line(self.surface, "black", (50,28), (110, 28), 2)
+            pygame.draw.line(self.surface, "black", (50,28), (50, 15), 2)
+            pygame.draw.line(self.surface, "black", (110,28), (110, 15), 2)
+        elif key == "shift":
+            self.surface = pygame.Surface((60, 40), pygame.SRCALPHA, 32).convert_alpha()
+            self.rect = self.surface.get_rect(center=pos)
+            pygame.draw.rect(self.surface, "white", (0, 0, 60, 40), 0, 6)
+            pygame.draw.rect(self.surface, "black", (0, 0, 60, 40), 2, 6)
+            pygame.draw.rect(self.surface, "black", (4, 4, 52, 32), 1, 8)
+            img = pygame.image.load(resource_path("shift.png")).convert_alpha()
+            img_rect = img.get_rect(topleft=(0, 4))
+            self.surface.blit(img, img_rect)
+        elif key == "esc":
+            self.surface = pygame.Surface((40, 35), pygame.SRCALPHA, 32).convert_alpha()
+            self.rect = self.surface.get_rect(center=pos)
+            pygame.draw.rect(self.surface, "white", (0, 0, 40, 35), 0, 6)
+            pygame.draw.rect(self.surface, "black", (0, 0, 40, 35), 2, 6)
+            pygame.draw.rect(self.surface, "black", (4, 4, 32, 27), 1, 8)
+            text = pygame.font.SysFont("courier", 14, bold=True).render("Esc", True, "black")
+            text_rect = text.get_rect(topleft=(6, 6))
+            self.surface.blit(text, text_rect)
+        else:
+            self.surface = pygame.Surface((40, 40), pygame.SRCALPHA, 32).convert_alpha()
+            self.rect = self.surface.get_rect(center=pos)
+            pygame.draw.rect(self.surface, "white", (0, 0, 40, 40), 0, 6)
+            pygame.draw.rect(self.surface, "black", (0, 0, 40, 40), 2, 6)
+            pygame.draw.rect(self.surface, "black", (4, 4, 32, 32), 1, 8)
+            text = pygame.font.SysFont("courier", 30, bold=True).render(key.upper(), True, "black")
+            text_rect = text.get_rect(topleft=(5, 0))
+            self.surface.blit(text, text_rect)
+
+    def draw(self, surf):
+        surf.blit(self.surface, self.rect)
+
+
+class FlipButton:
+    def __init__(self, pos, front=True):
+        if front:
+            self.surface = pygame.image.load(resource_path("flip.png")).convert_alpha()
+        else:
+            self.surface = pygame.transform.flip(pygame.image.load(resource_path("flip.png")).convert_alpha(), True, False)
+        self.rect = self.surface.get_rect(center=pos)
 
     def draw(self, surf):
         surf.blit(self.surface, self.rect)
